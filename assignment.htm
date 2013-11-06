@@ -1,0 +1,253 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<title>CS440 Assignment 3</title>
+</head>
+<body bgcolor="white">
+<table width="800">
+<tbody><tr>
+<td>
+<h2>CS440 Fall 2013</h2> 
+<h2>Assignment 3: Naive Bayes Classification</h2>
+<h3><font color="red">Due date: Thursday, November 21, 11:59:59 PM</font></h3>
+
+The goal of this assignment is to implement a Naive Bayes classifier as described
+in <a href="http://www.cs.illinois.edu/%7Eslazebni/fall13/lec13_bayesian_inference.pptx">this lecture</a> and to apply it to
+the task of classifying visual patterns and text documents. As before, you can
+work in teams of up to three people (three-unit students with three-unit students, 
+four-unit students with four-unit students).
+
+<h3>Contents</h3>
+
+<ul>
+<li>Part 1.1 (for everybody): <a href="#digit">Digit classification</a>
+</li><li>Part 1.2 (for everybody): <a href="#face">Face classification</a>
+</li><li>Part 2 (for four-unit students): <a href="#text">Text document classification</a>
+</li><li><a href="#submission">Submission instructions</a>
+</li></ul>
+
+<a name="digit">
+<h3>Part 1 (For everybody): Digit classification</h3>
+
+<img src="assignment_files/digits.gif"><br><br>
+<small>(Adapted from </small></a><small><a href="http://inst.eecs.berkeley.edu/%7Ecs188/sp11/projects/classification/classification.html">Berkeley CS 188 project 5</a>)</small><br><br>
+
+<ul>
+<li><b>Data:</b> <a href="http://www.cs.illinois.edu/%7Eslazebni/fall13/assignment3/digitdata.zip">This file</a> is a zip archive containing
+training and test digits, together with their ground truth labels (see readme.txt in the zip
+archive for an explanation of the data format). There are 5000 training exemplars (roughly 500
+per class) and 1000 test exemplars (roughly 100 per class).<br><br>
+
+</li><li><b>Features:</b> The basic feature set consists of a single binary indicator feature 
+for each pixel. Specifically, the feature F<sub>ij</sub> indicates the status of the (i,j)th
+pixel. Its value is 1 if the pixel is foreground (no need to distinguish between the two different
+foreground values), and 0 if it is background.<br><br>
+
+</li><li><b>Training:</b> The goal of the training stage is to estimate the <b>likelihoods
+<font color="blue">P(F<sub>ij</sub> | class)</font></b> for every pixel location (i,j) and for every 
+digit class from 0 to 9. The likelihood estimate is defined as<br><br>
+
+<font color="blue"><b>P(F<sub>ij</sub> = f | class) = (# of times pixel (i,j) has value f in training examples from this class) / 
+(Total # of training examples from this class).</b></font><br><br>
+
+In addition, as discussed in the lecture, you have to <b>smooth</b> the likelihoods to 
+ensure that there are no zero counts. <em>Laplace smoothing</em> is a very simple method
+that increases the observation count of every value f by some constant k. This corresponds to adding
+k to the numerator above, and k*V to the denominator (where V is the number of possible 
+values the feature can take on). The higher the value of k, the stronger the smoothing. Experiment with different integer
+values of k (say, from 1 to 50) and find the one that gives the highest classification accuracy.<br><br>
+
+You should also estimate the <b>priors <font color="blue">P(class)</font></b> by the empirical
+frequencies of different classes in the training set.<br><br>
+
+</li><li><b>Testing:</b> You will perform <b>maximum a posteriori (MAP)</b> classification of test digits
+according to the learned Naive Bayes model. Suppose a test image has feature values f<sub>1,1</sub>,
+f<sub>1,2</sub>, ... , f<sub>28,28</sub>. According to this model, the posterior probability (up to scale)
+of each class given the digit is given by<br><br>
+
+<b><font color="blue">P(class) &#8901; P(f<sub>1,1</sub>|class) &#8901; P(f<sub>1,2</sub>|class) &#8901; ...&#8901; 
+P(f<sub>28,28</sub> | class).</font></b><br><br>
+
+Note that in order to avoid underflow, you need to work with the log of the above quantity:<br><br>
+
+<b><font color="blue">log P(class) + log P(f<sub>1,1</sub>|class) + log P(f<sub>1,2</sub>|class) + ... +
+log P(f<sub>28,28</sub> | class).</font></b><br><br>
+
+After you compute the above decision function values for all ten classes for every test image, you will use
+them for MAP classification. You should also try <b>maximum likelihood (ML)</b> classification omitting
+the prior term from the above, and report whether this makes a lot of difference in the results.<br><br>
+
+</li><li><b>Evaluation:</b> Use the true class labels of the test images from the <tt>testlabels</tt>
+file to check the correctness of the estimated label for each test digit. Report your performance in terms
+of the <b>classification rate for each digit</b> (percentage of all test images of a given digit correctly
+classified). Also report your <b>confusion matrix</b>. This is a 10x10 matrix whose entry in row r and column c
+is the percentage of test images from class r that are classified as class c. In addition, for each digit class,
+show the test example with the highest posterior probability (i.e., the most "prototypical" instance
+of that digit), as well as some "interesting" examples of incorrect classifications made by your system. <br><br>
+
+<b><font color="red">Important:</font></b> The ground truth labels of test images should be used <em>only</em>
+to evaluate classification accuracy. They should not be used in any way during the decision process.<br><br>
+
+<b><font color="red">Tip:</font></b> You should be able to achieve at least 70% accuracy on the test set.
+One "warning sign" that you have a bug in your implementation is if some digit gets 100% or 0% classification
+accuracy (that is, your system either labels all the test images as the same class, or never wants to label
+any test images as some particular class).<br><br>
+
+</li><li><b>Odds ratios:</b> When using classifiers in real domains, it is important to be able to inspect
+what they have learned. One way to inspect a naive Bayes model is to look at the most likely features for a given label.
+Another tool for understanding the parameters is to look at odds ratios. For each pixel feature 
+F<sub>ij</sub> and pair of classes c<sub>1</sub>, c<sub>2</sub>, the odds ratio is defined as <br><br>
+
+<b><font color="blue">odds(F<sub>ij</sub>=1, c<sub>1</sub>, c<sub>2</sub>) = 
+P(F<sub>ij</sub>=1 | c<sub>1</sub>) / P(F<sub>ij</sub>=1 | c<sub>2</sub>).</font></b><br><br>
+
+This ratio will be greater than one for features which cause belief in c<sub>1</sub> to increase over
+the belief in c<sub>2</sub>. The features that have the greatest impact on classification are those 
+with both a high probability (because they appear often in the data) and a high odds ratio 
+(because they strongly bias one label versus another).<br><br>
+
+Take four pairs of digits that have the highest confusion rates according to your confusion matrix,
+and for each pair, display the maps of feature likelihoods for both classes as well as the odds ratio
+for the two classes. For example, the figure below shows the log likelihood maps for 1 (left), 8 (center),
+and the log odds ratio for 1 over 8 (right):<br><br>
+
+<img src="assignment_files/odds_1_8.gif"><br><br>
+
+If you cannot do a graphical display like the one above, you can display the maps in ASCII format
+using some coding scheme of your choice. For example, for the odds ratio map, you can use '+' to
+denote features with positive log odds, ' ' for features with log odds close to 1, and '-' for
+features with negative log odds.
+
+</li></ul>
+
+<a name="face">
+<h3>Part 1.2 (for everybody): Face classification</h3>
+<small>(Adapted from </small></a><small><a href="http://inst.eecs.berkeley.edu/%7Ecs188/sp11/projects/classification/classification.html">Berkeley CS 188 project 5</a>)</small><br><br>
+
+The second task is classifying windows cropped from images as containing a face or not. This is a basic step in <em>face detection</em>,
+where a window is scanned over the image, and for each window location, the classifier has to answer the question
+of whether a face is present. So, unlike the digit classification problem above, here the decision problem is binary.
+
+<ul>
+<li><a href="http://www.cs.illinois.edu/%7Eslazebni/fall13/assignment3/facedata.zip">This data file</a>,
+ in a similar format to that of the digit data, contains training and 
+test
+patches and binary labels, where 0 corresponds to 'non-face' and 1 
+corresponds to 'face'. The patches themselves are higher-resolution
+than the digit images, and each pixel value is either '#', corresponding
+ to an edge being found at that location, or ' ', corresponding
+to a non-edge pixel. <br><br>
+
+</li><li>
+As in Part 1.1, train a Naive Bayes classifier to tell faces from non-faces. In your report, 
+describe any interesting experimental settings (smoothing constant, etc.), and give
+the <b>confusion matrix</b> for this task, which should have four entries. Also give the
+<b>odds ratio</b> image for faces vs. non-faces and show a few interesting examples of <b>false positives</b>
+(non-faces classified as faces) and <b>false negatives</b> (faces classified as non-faces).
+</li></ul>
+
+
+<h3>Part 1 Extra Credit</h3>
+
+<ul>
+<li>Experiment with more sophisticated features to improve the accuracy of the Naive Bayes model.
+In particular, consider non-binary features or features that combine the values of several pixels.
+You can also try to implement a bag of features model (see 
+<a href="http://www.cs.unc.edu/%7Elazebnik/spring11/lec20_bag_of_features.pptx">this lecture</a> from my
+computer vision class for details).
+</li></ul><br><br>
+
+<a name="text">
+<h3> Part 2 (for four-unit students): Text Document Classification</h3>
+
+The goal of this part of the assignment is classification of text documents from an eight-class subset of the 
+</a><a href="http://qwone.com/%7Ejason/20Newsgroups/">20 Newsgroups dataset</a>.
+This <b><a href="http://www.cs.illinois.edu/%7Eslazebni/fall13/assignment3/8newsgroups.zip">data file</a></b> contains training and test documents preprocessed into a "bag of words" representation. 
+Each line of the training and test files has the following format:
+
+<p>
+<tt>[label] [word1]:[count1] [word2]:[count2] ... [wordn]:[countn]</tt>
+
+</p><p>
+There are a total of 58,106 unique words. The numeric labels correspond to the following newsgroup categories:
+
+</p><p>
+<tt>
+sci.space<br>
+comp.sys.ibm.pc.hardware<br>
+rec.sport.baseball<br>
+comp.windows.x<br>
+talk.politics.misc<br>
+misc.forsale<br>
+rec.sport.hockey<br>
+comp.graphics<br>
+</tt>
+
+</p><p>
+Train a Naive Bayes classifier on the training data and then apply it to the test data to
+predict the category labels of the test documents. You should be able to get over 70% accuracy.
+As in Part 1.1, report your classification rate on the test documents for each class, as well as the confusion matrix.
+For each class, report the top 20 words with the highest likelihood. Finally, as in Part 1.1, take the four pairs
+of classes with the largest amount of confusion and display the top 20 words with the highest log-odds ratio for
+that pair of classes.<br><br>
+
+</p><h3>Extra Credit for Part 2</h3>
+
+<ul>
+<li>Experiment with advanced techniques for improving performance of Naive Bayes on this dataset, 
+such as tf-idf weighting and stop word removal (not covered in class).<br><br>
+</li><li>Perform classification on the full <a href="http://qwone.com/%7Ejason/20Newsgroups/">20 Newsgroups dataset</a>.<br><br>
+</li><li>Visualize the bag-of-words representations of the documents using word cloud maps.
+</li></ul><br><br>
+
+
+<a name="submission">
+<h3>Submission Instructions</h3>
+
+As before, <b>one designated person from the group</b> will need to submit on
+<b></b></a><b><a href="https://compass2g.illinois.edu/">Compass 2g</a></b> by the deadline. 
+Three-unit students must upload under <b>Assignment 3 (three units)</b> and four-unit 
+students must upload under <b>Assignment 3 (four units)</b>. 
+Each submission must consist of the following two attachments:
+
+<p></p><ol>
+<li>A <b><font color="red">report</font></b> in <b>PDF format</b>. As before,
+the report should briefly describe your implemented solution and fully answer all the questions posed above. 
+<b>Remember: you will not get credit for any solutions you have obtained, but not included in the report.</b>
+
+<p>All group reports need to include a brief <b>statement of individual contribution</b>, 
+i.e., which group member was responsible for which parts of the solution and submitted material. 
+<br><br>
+
+The name of the report file should be <b>lastname_firstname_assignment3.pdf</b>.
+Don't forget to include the names of all group members and the number of credit units at the top of the report.
+
+
+</p></li><li>Your <b><font color="red">source code</font></b> compressed to a <b>single ZIP file</b>. 
+The code should be well commented, and it should be easy to see the correspondence between
+what's in the code and what's in the report. You don't need to include executables
+or various supporting files (e.g., utility libraries) whose content is irrelevant to the
+assignment. If we find it necessary to run your code in order to evaluate 
+your solution, we will get in touch with you.<br><br>
+
+The name of the code archive should be <b>lastname_firstname_assignment3.zip</b>.
+</li></ol>
+
+Multiple attempts will be allowed but in most circumstances, only the last submission will be graded.
+<b>We reserve the right to take off points for not following directions.</b>
+
+<p><b>Late policy:</b> You lose 25% of the points for every day the assignment is late.
+If you have a compelling reason for not being able to submit the assignment on time
+and would like to make a special arrangement, you must let me know <b>at least a week before the due date</b>
+(any genuine emergency situations will be handled on an individual basis).
+
+</p><p><b>Academic integrity:</b> Feel free to search the Web for general guidance (not for complete solutions). 
+If your group makes substantial use of some code snippets or information from outside sources, 
+be sure to acknowledge the sources in your report. By having your name listed as one of the authors
+of a report, you acknowledge that you have substantially contributed to the work described in the report. We reserve
+the right to question group members about the extent of their individual contributions.
+
+</p></td></tr></tbody></table>
+
+
+
+</body></html>
