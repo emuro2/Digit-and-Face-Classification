@@ -1,4 +1,4 @@
-bayes_classifier
+Bayes_classer
 ==============
 
 Contents
