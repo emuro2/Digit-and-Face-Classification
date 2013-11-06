@@ -1,5 +1,7 @@
 bayes_classer
 ==============
+Write-up link:
+https://docs.google.com/document/d/1u-OqvLkhMfWNwOsg_DFaG7AihSjYatMWXZ_h9FR9WPU/edit?usp=sharing
 
 Contents
 
