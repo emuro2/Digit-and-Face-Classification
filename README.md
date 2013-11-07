@@ -1,7 +1,12 @@
-bayes_classer
+﻿bayes_classer
 ==============
 Write-up link:
-https://docs.google.com/document/d/1u-OqvLkhMfWNwOsg_DFaG7AihSjYatMWXZ_h9FR9WPU/edit?usp=sharing
+https://docs.google.com/document/d/1u-OqvLkhMfWNwOsg_DFaG7AihSjYatMWXZ_h9FR9WPU/edit?
+
+Assignment link:
+http://www.cs.illinois.edu/~slazebni/fall13/assignment3.html
+
+usp=sharing
 
 Contents
 
