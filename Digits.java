@@ -8,7 +8,7 @@ public class Digits {
 	//array [][] of F_ij (pixel) probabilities
 	//for all 0-9 digits
 	
-	public Digits() {
+	public Digits() throws IOException {
 	FileReader inputStream = null;
     
     try {
