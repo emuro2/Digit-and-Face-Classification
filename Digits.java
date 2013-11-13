@@ -136,8 +136,8 @@ public class Digits {
 					//adding a constant K to each pixel
 					likelihoods[i][j][k] = likelihoods[i][j][k]+1;
 					
-					//k*V to the denominator  (where V is the number of possible values the feature can take on)
-					likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/(1*numbers[i]);
+					//k*V to the denominator  (where V is the number of possible values the feature can take on. i.e 2)
+					likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/( (1*2) + numbers[i] );
 					
 				}
 			}
