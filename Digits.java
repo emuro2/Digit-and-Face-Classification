@@ -16,7 +16,7 @@ public class Digits {
 	double [] frequencies = new double[10];
 	
 	//total number of numbers in the traininglabels 
-	int total = 0;
+	int total = 5000;
 	
 	
 	//initializes the likelihood array that contains the likelihoods for each class (i.e. classes 0-9)
@@ -56,7 +56,7 @@ public class Digits {
 	
 		        	//update the index, because read() returns an int (ascii format)
 		        	index = index-'0';
-		        	total++;
+		        	//total++;
 	        	}
 		        	
 				for(int j =0; j < 29; j++)
@@ -102,7 +102,7 @@ public class Digits {
 	
 		        	//index is in ascii format...subtract the offset of 0
 		        	index = index-'0';
-		        	total++;
+		        	//total++;
 				}
 	
 			}
@@ -133,9 +133,11 @@ public class Digits {
 				for(int k =0; k < 28; k++)
 				{
 					//smooth the likelihoods to ensure that there are no zero counts.
-					likelihoods[i][j][k]++;
+					//adding a constant K to each pixel
+					likelihoods[i][j][k] = likelihoods[i][j][k]+1;
 					
-					likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/(numbers[i]);
+					//k*V to the denominator  (where V is the number of possible values the feature can take on)
+					likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/(1*numbers[i]);
 					
 				}
 			}
