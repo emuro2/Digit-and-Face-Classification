@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.*;
 
 public class Digits {
 	
@@ -17,6 +18,10 @@ public class Digits {
 	
 	//total number of numbers in the traininglabels 
 	int total = 5000;
+	
+	
+	//new image from test images (new number)
+	int [][] image = new int[28][28];
 	
 	
 	//initializes the likelihood array that contains the likelihoods for each class (i.e. classes 0-9)
@@ -124,7 +129,7 @@ public class Digits {
 		//i = the number(class) we are going to update
 		for(int i =0; i < 10; i++)
 		{
-			//calculate the frequencies of each number
+			//calculate the frequencies of each number(Prior P(class))
 			frequencies[i]= (double)(numbers[i])/(total);
 
 			//updates the likelihoods
@@ -137,9 +142,142 @@ public class Digits {
 					likelihoods[i][j][k] = likelihoods[i][j][k]+1;
 					
 					likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/( numbers[i] );
+					//System.out.print(likelihoods[i][j][k]);
 				}
+				//System.out.println();
 			}
+			//System.out.println();
+			//System.out.println();
+			
 		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//gets new image from testimages file
+	public void getNewImage() throws IOException
+	{
+		FileReader inputNumber = null;
+		FileReader actualNumber = null;
+	    
+	    try {
+	        inputNumber = new FileReader("digitdata/testimages");
+	        //actualNumber = new FileReader("digitdata/testlabels");
+
+	        int c;
+	        int index = 0;
+				
+	        outerloop:
+	        for(int i = 0; i < 1037; i++)
+	        {		        	
+				for(int j =0; j < 29; j++)
+				{
+					
+					c =  inputNumber.read();
+					
+					//invalid read or end of the file
+					if(c == -1)
+					{
+						break outerloop;
+					}	
+					
+	    			//foreground
+					else if(c == 35 || c == 43)
+	    			{
+						System.out.print("#");
+	    				image[i%28][j] = 1;
+	    			}
+					//background, else its a background	
+					else if(c == 32)
+					{
+						System.out.print(" ");
+						image[i%28][j]= 0;
+					}
+				}
+				System.out.println();
+				if(i %28==0 && i !=0)
+					pickClass();
+				
+//				//new letter, need a new index
+//				if(i%28 == 0 && i != 0)
+//				{
+//					//update how many times this number has showed up
+//					numbers[index]++;
+//					
+//	        		//new number
+//					index = labels.read();
+//	        		
+//		        	//invalid read, or reached the end
+//		        	if(index == -1)
+//		        	{
+//		        		break outerloop;
+//		        	}
+//	
+//		        	//read in the new line character, skip it and read again
+//		        	else if(index == 10)
+//		        	{
+//		        		index = labels.read();
+//		        	}
+//	
+//		        	//index is in ascii format...subtract the offset of 0
+//		        	index = index-'0';
+//		        	//total++;
+//				}
+	
+			}
+	
+		}//end of reading in from testimages
+	    
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//picks a class for a particular test case. (estimates)
+	public void pickClass()
+	{
+		double[] probabilities = new double[10];
+		int best = 0;
+		
+		//i = the number(class) we are going to estimate
+		for(int i =0; i < 10; i++)
+		{
+			probabilities[i]= probabilities[i] + (frequencies[i]);
+			//updates the likelihoods
+			for(int j =0; j < 28; j++)
+			{
+				for(int k =0; k < 28; k++)
+				{
+					
+					probabilities[i] = probabilities[i] + ( image[j][k] * likelihoods[i][j][k]); 
+
+				}
+		
+			}
+			System.out.println(i+": "+ probabilities[i]);
+			if(probabilities[i] > probabilities[best])
+				best = i;
+			
+		}
+		
+		System.out.println("Best = "+ best);
+		
 	}
 	
 	

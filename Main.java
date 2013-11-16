@@ -10,6 +10,11 @@ public class Main {
 		Digits digit_classification = new Digits();
 	
 		digit_classification.updateLikelihoods();
+		
+		
+		digit_classification.getNewImage();
+		
+		//digit_classification.pickClass();
 	
 	}
 }
