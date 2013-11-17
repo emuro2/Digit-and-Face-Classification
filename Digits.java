@@ -23,10 +23,38 @@ public class Digits {
 	//new image from test images (new number)
 	int [][] image = new int[28][28];
 	
+	int actualNum = 0;
+	
+	double percent = 0;
+	double count = 0;
+	
+	
+	
+	
+	public void initLikelihoods()
+	{
+
+		for(int i =0; i < 10; i++)
+		{
+			for(int j =0; j < 28; j++)
+			{
+				for(int k =0; k < 28; k++)
+				{
+					//smooth the likelihoods to ensure that there are no zero counts.
+					//adding a constant K to each pixel
+					likelihoods[i][j][k] = 1;
+				}
+			}			
+		}
+		
+	}
+	
+	
 	
 	//initializes the likelihood array that contains the likelihoods for each class (i.e. classes 0-9)
 	public Digits() throws IOException 
 	{
+		initLikelihoods();
 		
 		FileReader inputStream = null;
 		FileReader labels = null;
@@ -79,7 +107,7 @@ public class Digits {
 	    			//foreground
 					else if(c == 35 || c == 43)
 	    			{
-	    					 likelihoods[index][i%28][j]++; 
+	    					 likelihoods[index][i%28][j]= likelihoods[index][i%28][j]+1; 
 	    			}
 					//background, else its a background		
 				}
@@ -137,11 +165,8 @@ public class Digits {
 			{
 				for(int k =0; k < 28; k++)
 				{
-					//smooth the likelihoods to ensure that there are no zero counts.
-					//adding a constant K to each pixel
-					likelihoods[i][j][k] = likelihoods[i][j][k]+1;
 					
-					likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/( numbers[i] );
+					//likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/( numbers[i] );
 					//System.out.print(likelihoods[i][j][k]);
 				}
 				//System.out.println();
@@ -154,8 +179,31 @@ public class Digits {
 	
 	
 	
-	
-	
+	//help debug likelihoods 
+	public void printLikelihoods()
+	{
+		
+				for(int i =0; i < 10; i++)
+				{
+
+				
+					for(int j =0; j < 28; j++)
+					{
+						for(int k =0; k < 28; k++)
+						{
+							//a threshold to see what the likelihoods look like
+							if(likelihoods[i][j][k] > .5)
+								System.out.print("#");
+							else 
+								System.out.print(" ");
+						}
+						System.out.println();
+					}
+					System.out.println();
+					System.out.println();
+					
+				}
+	}
 	
 	
 	
@@ -168,23 +216,43 @@ public class Digits {
 	    
 	    try {
 	        inputNumber = new FileReader("digitdata/testimages");
-	        //actualNumber = new FileReader("digitdata/testlabels");
+	        actualNumber = new FileReader("digitdata/testlabels");
 
 	        int c;
-	        int index = 0;
 				
 	        outerloop:
-	        for(int i = 0; i < 1037; i++)
-	        {		        	
+	        for(int i = 0; true; i++)
+	        {		 
+				if(i %28 == 0 && i != 0)
+				{
+					actualNum =  actualNumber.read();
+					//invalid read, or reached the end
+		        	if(actualNum == -1)
+		        	{
+		        		break outerloop;
+		        	}
+	
+		        	//read in the new line character, skip it and read again
+		        	else if(actualNum == 10)
+		        	{
+		        		actualNum = actualNumber.read();
+		        	}
+	
+		        	//index is in ascii format...subtract the offset of 0
+		        	actualNum = actualNum-'0';
+				}
 				for(int j =0; j < 29; j++)
 				{
-					
+	
 					c =  inputNumber.read();
+		
 					
 					//invalid read or end of the file
 					if(c == -1)
 					{
+						pickClass();
 						break outerloop;
+						
 					}	
 					
 	    			//foreground
@@ -201,34 +269,11 @@ public class Digits {
 					}
 				}
 				System.out.println();
+				
+				//we have a complete number, we should decide what number it is
 				if(i %28==0 && i !=0)
 					pickClass();
 				
-//				//new letter, need a new index
-//				if(i%28 == 0 && i != 0)
-//				{
-//					//update how many times this number has showed up
-//					numbers[index]++;
-//					
-//	        		//new number
-//					index = labels.read();
-//	        		
-//		        	//invalid read, or reached the end
-//		        	if(index == -1)
-//		        	{
-//		        		break outerloop;
-//		        	}
-//	
-//		        	//read in the new line character, skip it and read again
-//		        	else if(index == 10)
-//		        	{
-//		        		index = labels.read();
-//		        	}
-//	
-//		        	//index is in ascii format...subtract the offset of 0
-//		        	index = index-'0';
-//		        	//total++;
-//				}
 	
 			}
 	
@@ -258,25 +303,32 @@ public class Digits {
 		//i = the number(class) we are going to estimate
 		for(int i =0; i < 10; i++)
 		{
-			probabilities[i]= probabilities[i] + (frequencies[i]);
-			//updates the likelihoods
+			probabilities[i]= probabilities[i] + (Math.log(frequencies[i]) );
+			
 			for(int j =0; j < 28; j++)
 			{
 				for(int k =0; k < 28; k++)
 				{
-					
-					probabilities[i] = probabilities[i] + ( image[j][k] * likelihoods[i][j][k]); 
-
+					probabilities[i] = probabilities[i] + ( image[j][k] * Math.log(likelihoods[i][j][k]) );
 				}
-		
 			}
+			
 			System.out.println(i+": "+ probabilities[i]);
 			if(probabilities[i] > probabilities[best])
 				best = i;
 			
 		}
 		
-		System.out.println("Best = "+ best);
+		System.out.println("Best = "+ best + "  actual: "+actualNum);
+		if(best == actualNum)
+		{
+			percent++;
+			
+		}
+		count++;
+		System.out.println("Count: " +percent+" / "+count);
+		
+		System.out.println("percent: "+ (double)(percent/count)*100);
 		
 	}
 	
