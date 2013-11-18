@@ -9,14 +9,14 @@ public class Main {
 	{
 		
 		//Classify Digits
-		/*Digits digit_classification = new Digits();
+		Digits digit_classification = new Digits();
 	
 		digit_classification.updateLikelihoods();
 		
 		//help to debug
 		//digit_classification.printLikelihoods();
 		
-		digit_classification.getNewImage();*/
+		digit_classification.getNewImage();
 		
 		
 		
