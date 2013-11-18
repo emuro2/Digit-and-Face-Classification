@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.*;
 
-
+//erik
 public class Faces {
 		
 		//Likelihoods for each class (0-9)
