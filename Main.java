@@ -23,6 +23,10 @@ public class Main {
 		//Classify Faces
 		Faces face_classification = new Faces();
 		
+		face_classification.updateLikelihoods();
+		
+		face_classification.pickFace();
+		
 
 	
 	}

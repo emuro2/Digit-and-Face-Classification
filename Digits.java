@@ -250,7 +250,7 @@ public class Digits {
 					//invalid read or end of the file
 					if(c == -1)
 					{
-						pickClass();
+						pickClass(c);
 						break outerloop;
 						
 					}	
@@ -258,21 +258,21 @@ public class Digits {
 	    			//foreground
 					else if(c == 35 || c == 43)
 	    			{
-						System.out.print("#");
+						//System.out.print("#");
 	    				image[i%28][j] = 1;
 	    			}
 					//background, else its a background	
 					else if(c == 32)
 					{
-						System.out.print(" ");
+						//System.out.print(" ");
 						image[i%28][j]= 0;
 					}
 				}
-				System.out.println();
+				//System.out.println();
 				
 				//we have a complete number, we should decide what number it is
 				if(i %28==0 && i !=0)
-					pickClass();
+					pickClass(1);
 				
 	
 			}
@@ -295,7 +295,7 @@ public class Digits {
 	
 	
 	//picks a class for a particular test case. (estimates)
-	public void pickClass()
+	public void pickClass( int input)
 	{
 		double[] probabilities = new double[10];
 		int best = 0;
@@ -313,23 +313,27 @@ public class Digits {
 				}
 			}
 			
-			System.out.println(i+": "+ probabilities[i]);
+			//System.out.println(i+": "+ probabilities[i]);
 			if(probabilities[i] > probabilities[best])
 				best = i;
 			
 		}
 		
-		System.out.println("Best = "+ best + "  actual: "+actualNum);
+		//System.out.println("Best = "+ best + "  actual: "+actualNum);
 		if(best == actualNum)
 		{
 			percent++;
 			
 		}
 		count++;
-		System.out.println("Count: " +percent+" / "+count);
+		if(input ==-1)
+		{
+			System.out.println("Digit Classification: ");
+			System.out.println("Count: " +percent+" / "+count);
 		
-		System.out.println("percent: "+ (double)(percent/count)*100);
-		
+			System.out.println("percent: "+ (double)(percent/count)*100);
+			System.out.println();
+		}
 	}
 	
 	
