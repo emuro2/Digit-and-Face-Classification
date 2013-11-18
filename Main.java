@@ -25,7 +25,7 @@ public class Main {
 		
 		face_classification.updateLikelihoods();
 		
-		face_classification.pickFace();
+		face_classification.getNewFace();
 		
 
 	
