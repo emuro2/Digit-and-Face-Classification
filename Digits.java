@@ -73,23 +73,9 @@ public class Digits {
 	        	if(i == 0)
 	        	{
 	        		index = labels.read();
-	        		
-		        	//invalid read, or reached the end
-		        	if(index == -1)
-		        	{
-		        		break outerloop;
-		        	}
-	
-		        	
-		        	//read in the new line character, skip it
-		        	else if(index == 10)
-		        	{
-		        		index = labels.read();
-		        	}
-	
+	       
 		        	//update the index, because read() returns an int (ascii format)
 		        	index = index-'0';
-		        	//total++;
 	        	}
 		        	
 				for(int j =0; j < 29; j++)
@@ -107,9 +93,9 @@ public class Digits {
 	    			//foreground
 					else if(c == 35 || c == 43)
 	    			{
-	    					 likelihoods[index][i%28][j]= likelihoods[index][i%28][j]+1; 
+	    				likelihoods[index][i%28][j]= likelihoods[index][i%28][j]+1; 
 	    			}
-					//background, else its a background		
+					//else its the background		
 				}
 				
 				//new letter, need a new index
@@ -135,7 +121,6 @@ public class Digits {
 	
 		        	//index is in ascii format...subtract the offset of 0
 		        	index = index-'0';
-		        	//total++;
 				}
 	
 			}
@@ -164,16 +149,11 @@ public class Digits {
 			for(int j =0; j < 28; j++)
 			{
 				for(int k =0; k < 28; k++)
-				{
-					
-					//likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/( numbers[i] );
-					//System.out.print(likelihoods[i][j][k]);
+				{		
+					//each class has around 500 samples in the trainingimages file
+					likelihoods[i][j][k] = (double)(likelihoods[i][j][k])/(500);					
 				}
-				//System.out.println();
 			}
-			//System.out.println();
-			//System.out.println();
-			
 		}
 	}
 	

@@ -13,9 +13,6 @@ public class Main {
 	
 		digit_classification.updateLikelihoods();
 		
-		//help to debug
-		//digit_classification.printLikelihoods();
-		
 		digit_classification.getNewImage();
 		
 		
