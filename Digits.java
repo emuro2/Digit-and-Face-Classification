@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.*;
-import java.util.Arrays;
 
 public class Digits {
 	
@@ -29,76 +28,111 @@ public class Digits {
 	double percent = 0;
 	double count = 0;
 	
+	
+	
+	
 	public void initLikelihoods()
 	{
-		//smooth the likelihoods to ensure that there are no zero counts.
-		//adding a constant K to each pixel
-		Arrays.fill(likelihoods[0][0],1);
-		Arrays.fill(likelihoods[0],likelihoods[0][0]);
-		Arrays.fill(likelihoods,likelihoods[0]);		
+
+		for(int i =0; i < 10; i++)
+		{
+			for(int j =0; j < 28; j++)
+			{
+				for(int k =0; k < 28; k++)
+				{
+					//smooth the likelihoods to ensure that there are no zero counts.
+					//adding a constant K to each pixel
+					likelihoods[i][j][k] = 1;
+				}
+			}			
+		}
+		
 	}
+	
+	
 	
 	//initializes the likelihood array that contains the likelihoods for each class (i.e. classes 0-9)
 	public Digits() throws IOException 
 	{
 		initLikelihoods();
+		
+		FileReader inputStream = null;
+		FileReader labels = null;
 	    
-		FileReader inputStream = new FileReader("digitdata/trainingimages");
-        FileReader labels = new FileReader("digitdata/traininglabels");
+	    try {
+	        inputStream = new FileReader("digitdata/trainingimages");
+	        labels = new FileReader("digitdata/traininglabels");
 
-        int c, index = 0;
-        
-        outerloop:
-        for(int i = 0; true; i++) {
-        	//we need to read in the first number to be updated
-        	if(i == 0) {
-        		do {
+	        int c;
+	        int index = 0;
+	        
+	        outerloop:
+	        for(int i = 0; true; i++)
+	        {
+	        	//we need to read in the first number to be updated
+	        	if(i == 0)
+	        	{
 	        		index = labels.read();
-		        	if (index == -1) { 
-		        		break outerloop; //end of file reached
-		        	}
-		        	index = index-'0'; //update the index, because read() returns an int (ascii format)
-        		} while (index < 0); //if we read a character that wasn't a number, re-read
-        		
-        		System.out.println(index);
-        	}
-        	
-			for(int j =0; j < 28; j++) {
-				c = inputStream.read();
+	       
+		        	//update the index, because read() returns an int (ascii format)
+		        	index = index-'0';
+	        	}
+		        	
+				for(int j =0; j < 29; j++)
+				{
+					c =  inputStream.read();
+					
+					//invalid read or end of the file
+					if(c == -1)
+					{
+						//update number of times this number has showed up
+						numbers[index]++;
+						break outerloop;
+					}	
+					
+	    			//foreground
+					else if(c == 35 || c == 43)
+	    			{
+	    				likelihoods[index][i%28][j]= likelihoods[index][i%28][j]+1; 
+	    			}
+					//else its the background		
+				}
 				
-				switch (c) {
-				case -1: //invalid read or end of the file
-					//update number of times this number has showed up
+				//new letter, need a new index
+				if(i%28 == 0 && i != 0)
+				{
+					//update how many times this number has showed up
 					numbers[index]++;
-					break outerloop;	
-				case 35: //foreground
-				case 43: //foreground
-					likelihoods[index][i%28][j]++;
-					break;
-				default: //else its the background	
-					break;
-				}		
-			}
-			
-			//new letter, need a new index
-			if(i%28 == 0 && i != 0) {
-				//update how many times this number has showed up
-				numbers[index]++;
-				
-        		//new number
-        		do {
-	        		index = labels.read();
-		        	if (index == -1) { 
-		        		break outerloop; //end of file reached
+					
+	        		//new number
+					index = labels.read();
+	        		
+		        	//invalid read, or reached the end
+		        	if(index == -1)
+		        	{
+		        		break outerloop;
 		        	}
-		        	index = index-'0'; //update the index, because read() returns an int (ascii format)
-        		} while (index < 0); //if we read a character that wasn't a number, re-read
-        		System.out.println(index);
+	
+		        	//read in the new line character, skip it and read again
+		        	else if(index == 10)
+		        	{
+		        		index = labels.read();
+		        	}
+	
+		        	//index is in ascii format...subtract the offset of 0
+		        	index = index-'0';
+				}
+	
 			}
+	
+		}//end of reading in from files, finished calculating likelihoods
+	    
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
-		//end of reading in from files, finished calculating likelihoods 
-	    inputStream.close();
-	    labels.close();
+	
+	
+	
 	}//end of Digits Constructor
 	
 	
@@ -150,6 +184,9 @@ public class Digits {
 					
 				}
 	}
+	
+	
+	
 	
 	//gets new image from testimages file
 	public void getNewImage() throws IOException
