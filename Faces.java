@@ -1,3 +1,4 @@
+	
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -94,11 +95,15 @@ public class Faces {
 						else if(c == 35 )
 		    			{
 		    					 likelihoods[i%60][j]= likelihoods[i%60][j]+1; 
-		    					 //System.out.print("#");
+		    					 System.out.print("#");
 		    			}
-						//background, else its a background		
+						//background, else its a background	
+						else if(c == 32)
+							System.out.print(" ");
+							
+							
 					}
-					
+					System.out.println();
 					//new letter, need a new index
 					if(i%70 == 0 && i != 0)
 					{
