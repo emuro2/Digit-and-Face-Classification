@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿bayes_classer
 ==============
 Write-up link:
@@ -7,6 +8,16 @@ Assignment link:
 http://www.cs.illinois.edu/~slazebni/fall13/assignment3.html
 
 usp=sharing
+=======
+Digit-and-Face-Classification
+=============================
+
+Naive Bayes Classification
+
+Group Members: Erik Muro, William Hempy
+
+Assignment link: http://www.cs.illinois.edu/~slazebni/fall13/assignment3.html
+>>>>>>> 6811e0dd083a82a927f85caa492295a6c0fba1d7
 
 Contents
 
